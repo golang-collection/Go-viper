@@ -1,0 +1,16 @@
+{
+  "mysql": {
+    "user": "root",
+    "password": "",
+    "host": "127.0.0.1:3306",
+    "db_name": "example"
+  },
+  "redis": {
+    "host": "127.0.0.1:6553"
+  },
+  "rabbitmq": {
+    "user": "root",
+    "password": "root",
+    "host": "127.0.0.1:5124"
+  }
+}
