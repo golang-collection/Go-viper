@@ -1,9 +1,11 @@
 package main
 
 import (
+	"Go-viper/config"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	_ "github.com/spf13/viper/remote"
-	"go.uber.org/zap"
+	"log"
 )
 
 /**
@@ -12,19 +14,37 @@ import (
 * @Description:
 **/
 
-var logger = zap.NewExample()
+type Config struct {
+	Name string
+}
 
-func init() {
-	err := viper.AddRemoteProvider("consul", "localhost:8500", "config")
+func Init(cfg string) error {
+	c := Config{
+		Name: cfg,
+	}
+
+	// 初始化配置文件
+	if err := c.initConfig(); err != nil {
+		return err
+	}
+
+	// 监控配置文件变化并热加载程序
+	c.watchConfig()
+
+	return nil
+}
+
+func (c *Config) initConfig() error {
+	err := viper.AddRemoteProvider("consul", config.CONSUL_URL, config.CONSUL_CONFIG)
 	if err != nil {
-		logger.Error("read config",zap.Error(err))
-		return
+		return err
 	}
 	viper.SetConfigType("json") // Need to explicitly set this to json
-	if err := viper.ReadRemoteConfig(); err != nil {
-		logger.Error("read config",zap.Error(err))
-		return
+	err = viper.ReadRemoteConfig()
+	if err != nil {
+		return err
 	}
+	return nil
 }
 
 func GetMysqlUrl() (string, error) {
@@ -36,15 +56,10 @@ func GetMysqlUrl() (string, error) {
 	return mysqlURL, nil
 }
 
-func GetRedisUrl() (string, error) {
-	redisURL := viper.GetString("redis.host")
-	return redisURL, nil
-}
-
-func GetRabbitMQUrl() (string, error) {
-	mqHost := viper.GetString("rabbitmq.host")
-	mqUser := viper.GetString("rabbitmq.user")
-	mqPassword := viper.GetString("rabbitmq.password")
-	mqURL := "amqp://" + mqUser + ":" + mqPassword + "@"+mqHost+"/"
-	return mqURL, nil
+// 监控配置文件变化并热加载程序
+func (c *Config) watchConfig() {
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Printf("Config file changed: %s\n", e.Name)
+	})
 }

@@ -3,9 +3,41 @@
 
 [Viper](https://github.com/spf13/viper)是适用于Go应用程序的完整配置解决方案。它被设计用于在应用程序中工作，并且可以处理所有类型的配置需求和格式。
 
+本项目演示了读取本地配置文件和consul的key/value配置。
+
+# 目录结构
+```
+- config 配置文件存放位置
+- normal 读取本地配置文件
+- remote 读取远程配置文件
+```
+
+# 读取本地配置文件
+在config文件夹下创建config.json文件，如下所示：
+```json
+{
+  "mysql": {
+    "user": "root",
+    "password": "",
+    "host": "127.0.0.1:3306",
+    "db_name": "example"
+  },
+  "redis": {
+    "host": "127.0.0.1:6553"
+  },
+  "rabbitmq": {
+    "user": "root",
+    "password": "root",
+    "host": "127.0.0.1:5124"
+  }
+}
+```
+
+
+
 # Install
 
-```go
+```bash
 go get github.com/spf13/viper
 ```
 
@@ -25,7 +57,7 @@ Viper可以适配任何应用程序，可以处理所有类型的配置需求和
 
 # Read Config
 
-[mian.go](./main.go)
+[main.go](./main.go)
 
 # License
 [MIT](./LICENSE)

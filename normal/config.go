@@ -1,24 +1,44 @@
-package main
+package normal
 
-
-import(
+import (
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
+	"log"
 )
+
 /**
 * @Author: super
-* @Date: 2020-08-21 09:57
-* @Description:
+* @Date: 2020-09-07 07:59
+* @Description: 读取本地配置文件
 **/
 
-var logger = zap.NewExample()
+type Config struct {
+	Name string
+}
 
-func init() {
-	viper.SetConfigFile("config/config.json") //文件名
+func Init(cfg string) error {
+	c := Config{
+		Name: cfg,
+	}
+
+	// 初始化配置文件
+	if err := c.initConfig(); err != nil {
+		return err
+	}
+
+	// 监控配置文件变化并热加载程序
+	c.watchConfig()
+
+	return nil
+}
+
+func (c *Config) initConfig() error {
+	viper.SetConfigFile("/Users/super/develop/Go-viper/config/config.json") //文件名
 	err := viper.ReadInConfig() // 会查找和读取配置文件
 	if err != nil {             // Handle errors reading the config file
-		logger.Error("viper read config error", zap.Error(err))
+		return err
 	}
+	return nil
 }
 
 func GetMysqlUrl() (string, error) {
@@ -41,4 +61,12 @@ func GetRabbitMQUrl() (string, error) {
 	mqPassword := viper.GetString("rabbitmq.password")
 	mqURL := "amqp://" + mqUser + ":" + mqPassword + "@"+mqHost+"/"
 	return mqURL, nil
+}
+
+// 监控配置文件变化并热加载程序
+func (c *Config) watchConfig() {
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Printf("Config file changed: %s\n", e.Name)
+	})
 }
