@@ -33,7 +33,31 @@
 }
 ```
 
+核心代码为:
 
+```go
+viper.SetConfigFile("/Users/super/develop/Go-viper/config/config.json") //文件名
+err := viper.ReadInConfig() // 会查找和读取配置文件
+```
+
+更多细节：[normal](./normal)
+
+# 读取远程key/value
+在consul的key/value中创建config，例如：
+![consul](./img/consul.png)
+
+核心代码为：
+
+```go
+err := viper.AddRemoteProvider("consul", config.CONSUL_URL, config.CONSUL_CONFIG)
+if err != nil {
+	return err
+}
+viper.SetConfigType("json") // Need to explicitly set this to json
+err = viper.ReadRemoteConfig()
+```
+
+更多细节：[remote](./remote)
 
 # Install
 
@@ -52,12 +76,6 @@ Viper可以适配任何应用程序，可以处理所有类型的配置需求和
 - 从命令行标志读取
 - 读取缓冲区
 - 设置明确的值
-
-可以将Viper看作所有应用程序配置需要的注册中心。
-
-# Read Config
-
-[main.go](./main.go)
 
 # License
 [MIT](./LICENSE)
